@@ -13,6 +13,7 @@
 		C590936C2226D74100F55BEC /* AssignmentOne.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C590936A2226D74100F55BEC /* AssignmentOne.xcdatamodeld */; };
 		C590936E2226D74300F55BEC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C590936D2226D74300F55BEC /* Assets.xcassets */; };
 		C59093712226D74300F55BEC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C590936F2226D74300F55BEC /* LaunchScreen.storyboard */; };
+		C59093792226D96500F55BEC /* JsonStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59093782226D96500F55BEC /* JsonStruct.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		C590936D2226D74300F55BEC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C59093702226D74300F55BEC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C59093722226D74300F55BEC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C59093782226D96500F55BEC /* JsonStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonStruct.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				C590936F2226D74300F55BEC /* LaunchScreen.storyboard */,
 				C59093722226D74300F55BEC /* Info.plist */,
 				C590936A2226D74100F55BEC /* AssignmentOne.xcdatamodeld */,
+				C59093782226D96500F55BEC /* JsonStruct.swift */,
 			);
 			path = AssignmentOne;
 			sourceTree = "<group>";
@@ -138,6 +141,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C59093792226D96500F55BEC /* JsonStruct.swift in Sources */,
 				C59093662226D74100F55BEC /* ViewController.swift in Sources */,
 				C590936C2226D74100F55BEC /* AssignmentOne.xcdatamodeld in Sources */,
 				C59093642226D74100F55BEC /* AppDelegate.swift in Sources */,
