@@ -8,7 +8,11 @@
 
 import UIKit
 
+
+
 class ViewController: UITableViewController  {
+    
+    @IBOutlet weak var tblReports: UITableView!
     
     var jahanReport = [[techReport]]() // first array stores years, second year stores the reports associated with them
     
@@ -35,11 +39,25 @@ class ViewController: UITableViewController  {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "jsonCells", for: indexPath)
         let report = jahanReport[indexPath.section][indexPath.row]
-        cell.textLabel?.text = report.title ?? "No title"
-        cell.detailTextLabel?.text = report.authors ?? "No authors"
+        cell.textLabel?.text = report.title
+        cell.detailTextLabel?.text = report.authors
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showDetail", sender: self) // "showDetail" is the segue connecting both screens together
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if let destination = segue.destination as? ReportDetails {
+            let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
+            let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
+            destination.desReportDetail = jahanReport[arrayIndexSection!][arrayIndexRow!]
+            
+            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+        }
+    }
     
     func decodeJson() {
         if let url = URL(string: "https://cgi.csc.liv.ac.uk/~phil/Teaching/COMP228/techreports/data.php?class=techreports2") {
@@ -71,7 +89,7 @@ class ViewController: UITableViewController  {
         var count = 0 // Stores the element position of the year array within the 2D array
         jahanReport.append([techReport]()) // Initalising/Appending array to store type techReport
         jahanReport[0].append(reportsArray[0])
-
+        
         for i in 1..<reportsArray.count {
             if (reportsArray[i-1].year != reportsArray[i].year) { // If prev reports year is different to current reports year.
                 count += 1
@@ -80,6 +98,7 @@ class ViewController: UITableViewController  {
             jahanReport[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
         }
     }
+
 }
 
 
