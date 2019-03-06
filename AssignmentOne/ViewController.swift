@@ -41,21 +41,26 @@ class ViewController: UITableViewController  {
         let report = jahanReport[indexPath.section][indexPath.row]
         cell.textLabel?.text = report.title
         cell.detailTextLabel?.text = report.authors
+        cell.accessoryType = .none
+        
         return cell
     }
     
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetail", sender: self) // "showDetail" is the segue connecting both screens together
+        tblReports.cellForRow(at: indexPath)?.accessoryType = UITableViewCell.AccessoryType.checkmark
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
-        if let destination = segue.destination as? ReportDetails {
+        
+        if let secondClass = segue.destination as? ReportDetails {
             let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
             let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
-            destination.desReportDetail = jahanReport[arrayIndexSection!][arrayIndexRow!]
-            
-            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+            secondClass.desReportDetail = jahanReport[arrayIndexSection!][arrayIndexRow!]
+            //            secondClass.rowIndex = arrayIndexRow
+            //            secondClass.sectionIndex = arrayIndexSection
+            //            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
         }
     }
     
@@ -95,10 +100,14 @@ class ViewController: UITableViewController  {
                 count += 1
                 jahanReport.append([techReport]())
             }
+//            print(reportsArray[i].abstract)
+//            var str = reportsArray[i].abstract!.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+//            reportsArray[i].abstract = str
+            
             jahanReport[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
         }
     }
-
+    
 }
 
 

@@ -8,21 +8,61 @@
 
 import Foundation
 import UIKit
+import MessageUI
 
-class ReportDetails: UIViewController {
+class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
+    
+    var desReportDetail: techReport?
+    var rowIndex: Int?
+    var sectionIndex: Int?
+    var tick: Bool?
     
     @IBOutlet weak var lblAuthor,lblTitle, lblMoreDetail: UILabel!
-
-    var desReportDetail: techReport?
+    @IBOutlet weak var btnFullReport: UIButton!
+    @IBOutlet weak var btnEmailAuthor: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // If nothing is avaliable then hide button
+        desReportDetail?.pdf == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
+        desReportDetail?.email == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
         
         lblAuthor.text = desReportDetail?.authors ?? "No author"
         lblTitle.text = desReportDetail?.title ?? "No Title"
-        lblMoreDetail.text = desReportDetail?.abstract ?? "No text"
         
+        let str = desReportDetail?.abstract!.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+        lblMoreDetail.text = str ?? "No text"
+    }
+    
+    
+    @IBAction func switchFav(_ sender: UISwitch) {
+        // send fav back to viewController class
+        if (sender.isOn == true) {
+            print("ON")
+            tick = true
+        }
+        else {
+            print("off")
+            tick = false
+        }
         
-        
+    }
+    
+    @IBAction func btnFullReport(_ sender: Any) {
+        UIApplication.shared.open((desReportDetail?.pdf)!)
+    }
+    
+    @IBAction func btnEmailAuthor(_ sender: Any) {
+        if MFMailComposeViewController.canSendMail() { // If device can send an email
+            let mail = MFMailComposeViewController() // Instance used for sending an email
+            mail.mailComposeDelegate = self  // Mail view controller to compose the email
+            
+            present(mail, animated: true)
+        }
+        else { print("error") }
+    }
+    
+    func mailComposeController( _ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?){
+        controller.dismiss(animated: true)
     }
 }

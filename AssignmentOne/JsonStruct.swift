@@ -15,12 +15,12 @@ struct techReport: Decodable {
     let email: String?
     let authors: String
     let title: String
-    let abstract: String?
+    var abstract: String? // Changed to var as I remove any HTML tags from the text
     let pdf: URL?
     let comment: String?
     let lastModified: String
 }
 
 struct technicalReports: Decodable {
-    var techreports2: [techReport] // changed from let to var
+    let techreports2: [techReport]
 }
