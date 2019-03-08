@@ -10,12 +10,14 @@ import Foundation
 import UIKit
 import MessageUI
 
+
+var tick: Bool?
+
 class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
     
     var desReportDetail: techReport?
-    var rowIndex: Int?
-    var sectionIndex: Int?
-    var tick: Bool?
+    
+    var initViewController: UITableViewController?
     
     @IBOutlet weak var lblAuthor,lblTitle, lblMoreDetail: UILabel!
     @IBOutlet weak var btnFullReport: UIButton!
@@ -23,6 +25,7 @@ class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // If nothing is avaliable then hide button
         desReportDetail?.pdf == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
         desReportDetail?.email == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
@@ -30,26 +33,29 @@ class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
         lblAuthor.text = desReportDetail?.authors ?? "No author"
         lblTitle.text = desReportDetail?.title ?? "No Title"
         
-        let str = desReportDetail?.abstract!.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
+        let str = desReportDetail?.abstract?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
         lblMoreDetail.text = str ?? "No text"
     }
     
     
     @IBAction func switchFav(_ sender: UISwitch) {
         // send fav back to viewController class
+        
+        tick = false
+        
         if (sender.isOn == true) {
-            print("ON")
             tick = true
         }
         else {
-            print("off")
             tick = false
         }
+        
+        initViewController!.tableView.reloadData()
         
     }
     
     @IBAction func btnFullReport(_ sender: Any) {
-        UIApplication.shared.open((desReportDetail?.pdf)!)
+        UIApplication.shared.open((desReportDetail?.pdf)!) // Opens PDF
     }
     
     @IBAction func btnEmailAuthor(_ sender: Any) {
@@ -59,7 +65,7 @@ class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
             
             present(mail, animated: true)
         }
-        else { print("error") }
+        else { print("error") } // TODO: maybe add return here, need to test
     }
     
     func mailComposeController( _ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?){

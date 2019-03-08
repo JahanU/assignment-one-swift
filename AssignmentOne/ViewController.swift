@@ -8,7 +8,8 @@
 
 import UIKit
 
-
+var arrayIndexRow: Int?
+var arrayIndexSection: Int?
 
 class ViewController: UITableViewController  {
     
@@ -42,25 +43,33 @@ class ViewController: UITableViewController  {
         cell.textLabel?.text = report.title
         cell.detailTextLabel?.text = report.authors
         cell.accessoryType = .none
+
+        if tick == true && indexPath.row == arrayIndexRow && indexPath.section == arrayIndexSection {
+            cell.accessoryType = .checkmark
+        }
+        else {
+            cell.accessoryType = .none
+        }
         
         return cell
     }
     
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        arrayIndexRow = indexPath.row
+//        arrayIndexSection = indexPath.section
         performSegue(withIdentifier: "showDetail", sender: self) // "showDetail" is the segue connecting both screens together
-        tblReports.cellForRow(at: indexPath)?.accessoryType = UITableViewCell.AccessoryType.checkmark
+        //        tblReports.cellForRow(at: indexPath)?.accessoryType = UITableViewCell.AccessoryType.checkmark
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if let secondClass = segue.destination as? ReportDetails {
-            let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
-            let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
+            arrayIndexRow = tblReports.indexPathForSelectedRow?.row
+            arrayIndexSection = tblReports.indexPathForSelectedRow?.section
             secondClass.desReportDetail = jahanReport[arrayIndexSection!][arrayIndexRow!]
-            //            secondClass.rowIndex = arrayIndexRow
-            //            secondClass.sectionIndex = arrayIndexSection
-            //            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+            secondClass.initViewController = self
+            // tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
         }
     }
     
@@ -100,9 +109,6 @@ class ViewController: UITableViewController  {
                 count += 1
                 jahanReport.append([techReport]())
             }
-//            print(reportsArray[i].abstract)
-//            var str = reportsArray[i].abstract!.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
-//            reportsArray[i].abstract = str
             
             jahanReport[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
         }
