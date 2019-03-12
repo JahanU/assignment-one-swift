@@ -23,7 +23,7 @@ class ViewController: UITableViewController  {
         PersistenceService.clearCoreData()
         let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest() // Calls fetchRequest method
         do {
-            favouritesCoreData = try PersistenceService.context.fetch(fetchRequest)
+            let favouritesCoreData = try PersistenceService.context.fetch(fetchRequest)
             self.tableView.reloadData()
         }
         catch {

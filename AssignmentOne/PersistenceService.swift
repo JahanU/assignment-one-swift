@@ -42,29 +42,56 @@ class PersistenceService {
             }
         }
     }
+    //
+    //    static func getFavourite(aReport: techReport) -> Bool { // Return true if the report paper has been favourited
+    //        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
+    //
+    //        do {
+    //            let result = try persistentContainer.viewContext.fetch(fetchRequest)
+    //
+    //            for data in result { // Loop through all the fav reports from CoreData
+    //                let year = data.value(forKey: "year") as? String
+    //                let title = data.value(forKey: "title") as? String
+    //                let id = data.value(forKey: "id") as! String
+    //
+    //                // If the entity matches the report given, get the favourite value
+    //                if (year == aReport.year && title == aReport.title && id == aReport.id) {
+    //                    return (data.value(forKey: "favourite") as? Bool)!
+    //                }
+    //            }
+    //        }
+    //        catch {
+    //            print("Could not find favourite report")
+    //        }
+    //
+    //        return false // If it could not find the report, then return false
+    //    }
     
     static func getFavourite(aReport: techReport) -> Bool { // Return true if the report paper has been favourited
-        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "FavReport")
+        request.returnsObjectsAsFaults = false
         
         do {
-            let result = try persistentContainer.viewContext.fetch(fetchRequest)
+            let result = try persistentContainer.viewContext.fetch(request)
             
-            for data in result { // Loop through all the fav reports from CoreData
-                let year = data.value(forKey: "year") as? String
-                let title = data.value(forKey: "title") as? String
-                let id = data.value(forKey: "id") as! String
+            // Loop through all the report entitites
+            for data in result as! [NSManagedObject] {
+                guard let id = data.value(forKey: "id") as? String else { return false }
+                guard let year = data.value(forKey: "year") as? String else { return false }
+                guard let title = data.value(forKey: "title") as? String else { return false }
                 
                 // If the entity matches the report given, get the favourite value
-                if (year == aReport.year && title == aReport.title && id == aReport.id) {
-                    return (data.value(forKey: "favourite") as? Bool)!
+                if id == aReport.id && year == aReport.year && title == aReport.title {
+                    guard let favourite = data.value(forKey: "favourite") as? Bool else { return false }
+                    return favourite
                 }
             }
-        }
-        catch {
-            print("Could not find favourite report")
+        } catch {
+            print("Failed to load!")
         }
         
-        return false // If it could not find the report, then return false
+        // If the entity doesn't exist, return false
+        return false
     }
     
     static func clearCoreData() {
@@ -78,5 +105,17 @@ class PersistenceService {
         catch {}
     }
     
+    static func unfave(aReport: FavReport) {
+        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
+        do {
+            let reports = try PersistenceService.context.fetch(fetchRequest)
+            for obj in reports {
+                if aReport.favourite == false {
+                    PersistenceService.context.delete(obj as NSManagedObject)
+                }
+            }
+        }
+        catch {}
+    }
     
 }

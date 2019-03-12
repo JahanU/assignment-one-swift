@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import MessageUI
 
-var favouritesCoreData = [FavReport]()
+//var favouritesCoreData = [FavReport]()
 
 class ReportDetails: UIViewController {
     
@@ -42,18 +42,26 @@ class ReportDetails: UIViewController {
     
     @IBAction func switchFav(_ sender: UISwitch) {
         
-        // Saving data to favReport entity
         let favReport = FavReport(context: PersistenceService.context)
-        
-        favReport.id = desReportDetail?.id
-        favReport.title = desReportDetail?.title
-        favReport.year = desReportDetail?.year
-        favReport.favourite = true
-        
-        PersistenceService.saveContext() // Saves data into a container
-        favouritesCoreData.append(favReport)
-        
 
+        // Saving data to favReport entity
+        if (sender.isOn) {
+            
+            favReport.id = desReportDetail?.id
+            favReport.title = desReportDetail?.title
+            favReport.year = desReportDetail?.year
+            favReport.favourite = true
+            
+            PersistenceService.saveContext() // Saves data into a container
+//            favouritesCoreData.append(favReport)
+        }
+        else {
+            favReport.favourite = false
+            PersistenceService.unfave(aReport: favReport)
+//            favouritesCoreData.removeLast()
+          
+
+        }
         
     }
     
