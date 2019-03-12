@@ -15,7 +15,6 @@ var favouritesCoreData = [FavReport]()
 class ReportDetails: UIViewController {
     
     var desReportDetail: techReport?
-    var initViewController: UITableViewController?
     
     @IBOutlet weak var switchFav: UISwitch!
     @IBOutlet weak var lblAuthor, lblTitle, lblMoreDetail: UILabel!
@@ -32,12 +31,12 @@ class ReportDetails: UIViewController {
         lblTitle.text = desReportDetail?.title ?? "No Title"
         
         lblMoreDetail.text = desReportDetail?.abstract?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil) ?? "No text"
-
+        
         
         if PersistenceService.getFavourite(aReport: desReportDetail!) {
             switchFav.setOn(true, animated: true)
         }
-    
+        
     }
     
     
@@ -54,7 +53,7 @@ class ReportDetails: UIViewController {
         PersistenceService.saveContext() // Saves data into a container
         favouritesCoreData.append(favReport)
         
-        initViewController!.tableView.reloadData()
+
         
     }
     

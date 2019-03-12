@@ -9,30 +9,39 @@
 import UIKit
 import CoreData
 
+
 class ViewController: UITableViewController  {
     
     @IBOutlet weak var tblReports: UITableView!
+    
     var allReports = [[techReport]]() // first array stores years, second year stores the reports associated with them
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         decodeJson()
-        
-//        clearCoreData()
-        
+        PersistenceService.clearCoreData()
         let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest() // Calls fetchRequest method
         do {
-            let favRpt = try PersistenceService.context.fetch(fetchRequest)
-            favouritesCoreData = favRpt
-            print(favouritesCoreData.count)
+            favouritesCoreData = try PersistenceService.context.fetch(fetchRequest)
             self.tableView.reloadData()
         }
         catch {
             print("Error!")
         }
+        
+        tableView.reloadData()
+
     }
     
+    override func viewWillAppear(_ animated: Bool) { // Reload tableview when back button is pressed
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+}
+
+
+extension ViewController {
     // Gets the title header for each section, by accessing the first array from the 2D which stores the years for every associated report
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return allReports[section].first?.year
@@ -51,17 +60,12 @@ class ViewController: UITableViewController  {
         let report = allReports[indexPath.section][indexPath.row]
         cell.textLabel?.text = report.title
         cell.detailTextLabel?.text = report.authors
-        
         (PersistenceService.getFavourite(aReport: report)) ? (cell.accessoryType = .checkmark) : (cell.accessoryType = .none)
-
-
-        
-        
-        
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showDetail", sender: self) // "showDetail" is the segue connecting both screens together
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -69,14 +73,14 @@ class ViewController: UITableViewController  {
             let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
             let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
             secondClass.desReportDetail = allReports[arrayIndexSection!][arrayIndexRow!]
-            secondClass.initViewController = self
-            // tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+//            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+
         }
     }
 }
 
-
 extension ViewController {
+    
     func decodeJson() {
         if let url = URL(string: "https://cgi.csc.liv.ac.uk/~phil/Teaching/COMP228/techreports/data.php?class=techreports2") {
             let session = URLSession.shared
@@ -117,17 +121,6 @@ extension ViewController {
         }
     }
     
-    
-    func clearCoreData() {
-        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
-        do {
-            let reports = try PersistenceService.context.fetch(fetchRequest)
-            for obj in reports {
-                PersistenceService.context.delete(obj as NSManagedObject)
-            }
-        }
-        catch {}
-    }
     
 }
 
