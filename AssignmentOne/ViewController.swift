@@ -7,72 +7,76 @@
 //
 
 import UIKit
-
-var arrayIndexRow: Int?
-var arrayIndexSection: Int?
+import CoreData
 
 class ViewController: UITableViewController  {
     
     @IBOutlet weak var tblReports: UITableView!
-    
-    var jahanReport = [[techReport]]() // first array stores years, second year stores the reports associated with them
+    var allReports = [[techReport]]() // first array stores years, second year stores the reports associated with them
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         decodeJson()
         
+//        clearCoreData()
+        
+        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest() // Calls fetchRequest method
+        do {
+            let favRpt = try PersistenceService.context.fetch(fetchRequest)
+            favouritesCoreData = favRpt
+            print(favouritesCoreData.count)
+            self.tableView.reloadData()
+        }
+        catch {
+            print("Error!")
+        }
     }
     
     // Gets the title header for each section, by accessing the first array from the 2D which stores the years for every associated report
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return jahanReport[section].first?.year
+        return allReports[section].first?.year
     }
     // returns 18 as the range of years is from 2001 - 2018
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return jahanReport.count // returns the count of the first array
+        return allReports.count // returns the count of the first array
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return jahanReport[section].count // Gets the count of how many papers there are given the year
+        return allReports[section].count // Gets the count of how many papers there are given the year
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "jsonCells", for: indexPath)
-        let report = jahanReport[indexPath.section][indexPath.row]
+        let report = allReports[indexPath.section][indexPath.row]
         cell.textLabel?.text = report.title
         cell.detailTextLabel?.text = report.authors
-        cell.accessoryType = .none
+        
+        (PersistenceService.getFavourite(aReport: report)) ? (cell.accessoryType = .checkmark) : (cell.accessoryType = .none)
 
-        if tick == true && indexPath.row == arrayIndexRow && indexPath.section == arrayIndexSection {
-            cell.accessoryType = .checkmark
-        }
-        else {
-            cell.accessoryType = .none
-        }
+
+        
+        
         
         return cell
     }
-    
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        arrayIndexRow = indexPath.row
-//        arrayIndexSection = indexPath.section
         performSegue(withIdentifier: "showDetail", sender: self) // "showDetail" is the segue connecting both screens together
-        //        tblReports.cellForRow(at: indexPath)?.accessoryType = UITableViewCell.AccessoryType.checkmark
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
         if let secondClass = segue.destination as? ReportDetails {
-            arrayIndexRow = tblReports.indexPathForSelectedRow?.row
-            arrayIndexSection = tblReports.indexPathForSelectedRow?.section
-            secondClass.desReportDetail = jahanReport[arrayIndexSection!][arrayIndexRow!]
+            let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
+            let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
+            secondClass.desReportDetail = allReports[arrayIndexSection!][arrayIndexRow!]
             secondClass.initViewController = self
             // tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
         }
     }
-    
+}
+
+
+extension ViewController {
     func decodeJson() {
         if let url = URL(string: "https://cgi.csc.liv.ac.uk/~phil/Teaching/COMP228/techreports/data.php?class=techreports2") {
             let session = URLSession.shared
@@ -85,7 +89,7 @@ class ViewController: UITableViewController  {
                     let decoder = JSONDecoder()
                     let getTechnicalReports = try decoder.decode(technicalReports.self, from: jsonData)
                     let sortedReports = getTechnicalReports.techreports2.sorted(by: {$0.year > $1.year })
-                    self.array(reportsArray: sortedReports)
+                    self.initAllReports(reportsArray: sortedReports)
                     DispatchQueue.main.async(execute: {
                         self.tableView.reloadData()
                     })
@@ -99,21 +103,31 @@ class ViewController: UITableViewController  {
         }
     }
     
-    func array(reportsArray: [techReport]) {
+    func initAllReports(reportsArray: [techReport]) {
         var count = 0 // Stores the element position of the year array within the 2D array
-        jahanReport.append([techReport]()) // Initalising/Appending array to store type techReport
-        jahanReport[0].append(reportsArray[0])
+        allReports.append([techReport]()) // Initalising/Appending array to store type techReport
+        allReports[0].append(reportsArray[0])
         
         for i in 1..<reportsArray.count {
             if (reportsArray[i-1].year != reportsArray[i].year) { // If prev reports year is different to current reports year.
                 count += 1
-                jahanReport.append([techReport]())
+                allReports.append([techReport]())
             }
-            
-            jahanReport[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
+            allReports[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
         }
     }
     
+    
+    func clearCoreData() {
+        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
+        do {
+            let reports = try PersistenceService.context.fetch(fetchRequest)
+            for obj in reports {
+                PersistenceService.context.delete(obj as NSManagedObject)
+            }
+        }
+        catch {}
+    }
+    
 }
-
 

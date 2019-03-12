@@ -10,45 +10,49 @@ import Foundation
 import UIKit
 import MessageUI
 
+var favouritesCoreData = [FavReport]()
 
-var tick: Bool?
-
-class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
+class ReportDetails: UIViewController {
     
     var desReportDetail: techReport?
-    
     var initViewController: UITableViewController?
     
-    @IBOutlet weak var lblAuthor,lblTitle, lblMoreDetail: UILabel!
-    @IBOutlet weak var btnFullReport: UIButton!
-    @IBOutlet weak var btnEmailAuthor: UIButton!
+    @IBOutlet weak var switchFav: UISwitch!
+    @IBOutlet weak var lblAuthor, lblTitle, lblMoreDetail: UILabel!
+    @IBOutlet weak var btnFullReport, btnEmailAuthor: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // If nothing is avaliable then hide button
-        desReportDetail?.pdf == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
-        desReportDetail?.email == nil ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
+        (desReportDetail?.pdf == nil) ? (btnFullReport.isHidden = true) : (btnFullReport.isHidden = false)
+        (desReportDetail?.email == nil) ? (btnEmailAuthor.isHidden = true) : (btnEmailAuthor.isHidden = false)
         
         lblAuthor.text = desReportDetail?.authors ?? "No author"
         lblTitle.text = desReportDetail?.title ?? "No Title"
         
-        let str = desReportDetail?.abstract?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
-        lblMoreDetail.text = str ?? "No text"
+        lblMoreDetail.text = desReportDetail?.abstract?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil) ?? "No text"
+
+        
+        if PersistenceService.getFavourite(aReport: desReportDetail!) {
+            switchFav.setOn(true, animated: true)
+        }
+    
     }
     
     
     @IBAction func switchFav(_ sender: UISwitch) {
-        // send fav back to viewController class
         
-        tick = false
+        // Saving data to favReport entity
+        let favReport = FavReport(context: PersistenceService.context)
         
-        if (sender.isOn == true) {
-            tick = true
-        }
-        else {
-            tick = false
-        }
+        favReport.id = desReportDetail?.id
+        favReport.title = desReportDetail?.title
+        favReport.year = desReportDetail?.year
+        favReport.favourite = true
+        
+        PersistenceService.saveContext() // Saves data into a container
+        favouritesCoreData.append(favReport)
         
         initViewController!.tableView.reloadData()
         
@@ -57,6 +61,9 @@ class ReportDetails: UIViewController, MFMailComposeViewControllerDelegate {
     @IBAction func btnFullReport(_ sender: Any) {
         UIApplication.shared.open((desReportDetail?.pdf)!) // Opens PDF
     }
+    
+}
+extension ReportDetails: MFMailComposeViewControllerDelegate {
     
     @IBAction func btnEmailAuthor(_ sender: Any) {
         if MFMailComposeViewController.canSendMail() { // If device can send an email
