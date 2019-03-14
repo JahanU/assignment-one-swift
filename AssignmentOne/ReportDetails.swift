@@ -14,7 +14,7 @@ import MessageUI
 
 class ReportDetails: UIViewController {
     
-    var desReportDetail: techReport?
+    var desReportDetail: techReport? // Stores the report that was passed from view controller
     
     @IBOutlet weak var switchFav: UISwitch!
     @IBOutlet weak var lblAuthor, lblTitle, lblMoreDetail: UILabel!
@@ -29,41 +29,39 @@ class ReportDetails: UIViewController {
         
         lblAuthor.text = desReportDetail?.authors ?? "No author"
         lblTitle.text = desReportDetail?.title ?? "No Title"
-        
+        // If HTML is found in text then remove them
         lblMoreDetail.text = desReportDetail?.abstract?.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil) ?? "No text"
         
-        
+        // If report is favourited, then button should be set on
         if PersistenceService.getFavourite(aReport: desReportDetail!) {
             switchFav.setOn(true, animated: true)
         }
-        
+        else {
+            switchFav.setOn(false, animated: true)
+        }
     }
-    
     
     @IBAction func switchFav(_ sender: UISwitch) {
         
-        let favReport = FavReport(context: PersistenceService.context)
-
-        // Saving data to favReport entity
-        if (sender.isOn) {
-            
+        let favReport = FavReport(context: PersistenceService.context) // Access to core data so that we can save entities.
+        
+        if (sender.isOn) {  // Saving data to favReport entity
             favReport.id = desReportDetail?.id
             favReport.title = desReportDetail?.title
             favReport.year = desReportDetail?.year
             favReport.favourite = true
-            
-            PersistenceService.saveContext() // Saves data into a container
-//            favouritesCoreData.append(favReport)
+            PersistenceService.saveContext() // Saves data into a container for core data
+            //favouritesCoreData.append(favReport)
         }
         else {
+            favReport.id = desReportDetail?.id
+            favReport.title = desReportDetail?.title
+            favReport.year = desReportDetail?.year
             favReport.favourite = false
-            PersistenceService.unfave(aReport: favReport)
-//            favouritesCoreData.removeLast()
-          
-
+            PersistenceService.unFave(aReport: desReportDetail!)
         }
-        
-    }
+}
+
     
     @IBAction func btnFullReport(_ sender: Any) {
         UIApplication.shared.open((desReportDetail?.pdf)!) // Opens PDF

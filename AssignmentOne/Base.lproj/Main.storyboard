@@ -26,7 +26,7 @@
             </objects>
             <point key="canvasLocation" x="-402" y="173"/>
         </scene>
-        <!--View Controller-->
+        <!--Reports-->
         <scene sceneID="DNN-Go-B59">
             <objects>
                 <tableViewController id="mkq-3s-ipf" customClass="ViewController" customModule="AssignmentOne" customModuleProvider="target" sceneMemberID="viewController">
@@ -65,7 +65,7 @@
                             <outlet property="delegate" destination="mkq-3s-ipf" id="7eT-Hn-Y8A"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="RbA-od-rZB"/>
+                    <navigationItem key="navigationItem" title="Reports" id="RbA-od-rZB"/>
                     <connections>
                         <outlet property="tblReports" destination="TlN-lB-CqP" id="uQ7-ja-dDt"/>
                         <segue destination="xdj-ke-d7e" kind="show" identifier="showDetail" id="8DP-Q5-0Yl"/>
