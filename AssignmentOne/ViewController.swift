@@ -18,18 +18,7 @@ class ViewController: UITableViewController  {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
         decodeJson()
-        PersistenceService.clearCoreData()
-        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest() // Calls fetchRequest method
-        do {
-            let favouritesCoreData = try PersistenceService.context.fetch(fetchRequest)
-            print(favouritesCoreData.count)
-            self.tableView.reloadData()
-        }
-        catch {
-            print("Error!")
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) { // Reload tableview when back button is pressed
@@ -59,14 +48,7 @@ extension ViewController {
         cell.textLabel?.text = report.title
         cell.detailTextLabel?.text = report.authors
         // If report is favourited within CoreData, then return add checkmark to cell, else no checkmark.
-//        (PersistenceService.getFavourite(aReport: report)) ? (cell.accessoryType = .checkmark) : (cell.accessoryType = .none)
-        
-        if PersistenceService.getFavourite(aReport: report) {
-            cell.accessoryType = .checkmark
-        }
-        else {
-            cell.accessoryType = .none
-        }
+        (PersistenceService.getFavourite(aReport: report)) ? (cell.accessoryType = .checkmark) : (cell.accessoryType = .none)
         return cell
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -79,7 +61,7 @@ extension ViewController {
             let arrayIndexRow = tblReports.indexPathForSelectedRow?.row
             let arrayIndexSection = tblReports.indexPathForSelectedRow?.section
             secondClass.desReportDetail = allReports[arrayIndexSection!][arrayIndexRow!]
-//            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true)
+            tableView.deselectRow(at: tblReports.indexPathForSelectedRow!, animated: true) // Little animation touches
         }
     }
 }
@@ -114,8 +96,8 @@ extension ViewController {
     // converts the sorted JSON array into a 2D array orgnasied by the year
     func initAllReports(reportsArray: [techReport]) {
         var count = 0 // Stores the element position of the year array within the 2D array
-        allReports.append([techReport]()) // Initalising/Appending array to store type techReport
-        allReports[0].append(reportsArray[0]) // TODO - can change this probs
+        allReports = [[techReport]()] // Initalising 2D array to store type techReport
+        allReports[0].append(reportsArray[0]) // Appends the first section of reports (2018 reports only)
         
         for i in 1..<reportsArray.count {
             if (reportsArray[i-1].year != reportsArray[i].year) { // If prev reports year is different to current reports year.
@@ -125,7 +107,5 @@ extension ViewController {
             allReports[count].append(reportsArray[i]) // Adds current report selected to the correct associated year
         }
     }
-    
-    
 }
 

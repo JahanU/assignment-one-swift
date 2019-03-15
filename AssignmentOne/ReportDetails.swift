@@ -10,8 +10,6 @@ import Foundation
 import UIKit
 import MessageUI
 
-//var favouritesCoreData = [FavReport]()
-
 class ReportDetails: UIViewController {
     
     var desReportDetail: techReport? // Stores the report that was passed from view controller
@@ -44,24 +42,20 @@ class ReportDetails: UIViewController {
     @IBAction func switchFav(_ sender: UISwitch) {
         
         let favReport = FavReport(context: PersistenceService.context) // Access to core data so that we can save entities.
+        favReport.id = desReportDetail?.id
+        favReport.title = desReportDetail?.title
+        favReport.year = desReportDetail?.year
         
         if (sender.isOn) {  // Saving data to favReport entity
-            favReport.id = desReportDetail?.id
-            favReport.title = desReportDetail?.title
-            favReport.year = desReportDetail?.year
             favReport.favourite = true
             PersistenceService.saveContext() // Saves data into a container for core data
-            //favouritesCoreData.append(favReport)
         }
         else {
-            favReport.id = desReportDetail?.id
-            favReport.title = desReportDetail?.title
-            favReport.year = desReportDetail?.year
             favReport.favourite = false
             PersistenceService.unFave(aReport: desReportDetail!)
         }
-}
-
+    }
+    
     
     @IBAction func btnFullReport(_ sender: Any) {
         UIApplication.shared.open((desReportDetail?.pdf)!) // Opens PDF

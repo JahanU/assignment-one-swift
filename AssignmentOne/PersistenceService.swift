@@ -35,95 +35,52 @@ class PersistenceService {
         if context.hasChanges {
             do {
                 try context.save()
-                //                print("saved!")
+                // print("saved!")
             } catch {
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }
-    //
-    //    static func getFavourite(aReport: techReport) -> Bool { // Return true if the report paper has been favourited
-    //        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
-    //
-    //        do {
-    //            let result = try persistentContainer.viewContext.fetch(fetchRequest)
-    //
-    //            for data in result { // Loop through all the fav reports from CoreData
-    //                let year = data.value(forKey: "year") as? String
-    //                let title = data.value(forKey: "title") as? String
-    //                let id = data.value(forKey: "id") as! String
-    //
-    //                // If the entity matches the report given, get the favourite value
-    //                if (year == aReport.year && title == aReport.title && id == aReport.id) {
-    //                    return (data.value(forKey: "favourite") as? Bool)!
-    //                }
-    //            }
-    //        }
-    //        catch {
-    //            print("Could not find favourite report")
-    //        }
-    //
-    //        return false // If it could not find the report, then return false
-    //    }
     
     static func getFavourite(aReport: techReport) -> Bool { // Return true if the report paper has been favourited
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "FavReport")
-        request.returnsObjectsAsFaults = false
+        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
         
         do {
-            let result = try persistentContainer.viewContext.fetch(request)
+            let result = try persistentContainer.viewContext.fetch(fetchRequest)
             
-            // Loop through all the report entitites
-            for data in result as! [NSManagedObject] {
-                guard let id = data.value(forKey: "id") as? String else { return false }
-                guard let year = data.value(forKey: "year") as? String else { return false }
-                guard let title = data.value(forKey: "title") as? String else { return false }
+            for data in result { // Loop through all the fav reports from CoreData
+                let year = data.value(forKey: "year") as? String
+                let title = data.value(forKey: "title") as? String
+                let id = data.value(forKey: "id") as! String
                 
-                //  If the entity matches the report given, get the favourite value
+                // If the entity matches the report given, get the favourite value.
                 if (year == aReport.year && title == aReport.title && id == aReport.id) {
                     return (data.value(forKey: "favourite") as? Bool)!
                 }
             }
-        } catch {
-            print("Failed to load!")
+        }
+        catch {
+            print("Could not find favourite report")
         }
         
-        // If the entity doesn't exist, return false
-        return false
+        return false // If it could not find the report, then return false
     }
     
     static func unFave(aReport: techReport) {
         // find the report that matches what they passed in.
-        // check if it matches core data
-        // then delete it!
+        // check if it matches core data, then delete it
         let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: "FavReport")
-        let predicate = NSPredicate(format: "title = %@ AND year = %@ AND id = %@", aReport.title, aReport.year, aReport.id)
-        fetch.predicate = predicate
-        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        // Finds a match given the report
+        let predicate = NSPredicate(format: "title = %@ AND year = %@ AND id = %@", aReport.title, aReport.year, aReport.id) // Attempts to find a match
+        fetch.predicate = predicate // Fetches the match result
+        let request = NSBatchDeleteRequest(fetchRequest: fetch) // Request to delete fav from core data
         do {
-            try persistentContainer.viewContext.execute(request)
-       
-        
-        let fetchRequest: NSFetchRequest<FavReport> = FavReport.fetchRequest()
-        let reports = try PersistenceService.context.fetch(fetchRequest)
-
-        for data in reports {
-            print("w")
-             let id = data.value(forKey: "id") as? String
-             let year = data.value(forKey: "year") as? String
-             let title = data.value(forKey: "title") as? String
-            
-            //  If the entity matches the report given, get the favourite value
-            if (year == aReport.year && title == aReport.title && id == aReport.id) {
-                PersistenceService.context.delete(data as NSManagedObject)
-                print("deleted \(data.title)")
-//                return (data.value(forKey: "favourite") as? Bool)!
-                }
-            }
-            
+            try persistentContainer.viewContext.execute(request) // Execute the delete action into the coredata container
         }
-        catch{}
+        catch {
+            print("Cannot find report to delete")
+        }
     }
     
     static func clearCoreData() { // Loops through core data and deletes all entities
@@ -134,7 +91,9 @@ class PersistenceService {
                 PersistenceService.context.delete(obj as NSManagedObject)
             }
         }
-        catch {}
+        catch {
+            print("Cannot clear core data")
+        }
     }
     
     
