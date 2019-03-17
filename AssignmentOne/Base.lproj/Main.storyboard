@@ -68,6 +68,7 @@
                     <navigationItem key="navigationItem" title="Reports" id="RbA-od-rZB"/>
                     <connections>
                         <outlet property="tblReports" destination="TlN-lB-CqP" id="uQ7-ja-dDt"/>
+                        <outlet property="x" destination="TlN-lB-CqP" id="6HM-ye-M9y"/>
                         <segue destination="xdj-ke-d7e" kind="show" identifier="showDetail" id="8DP-Q5-0Yl"/>
                     </connections>
                 </tableViewController>
